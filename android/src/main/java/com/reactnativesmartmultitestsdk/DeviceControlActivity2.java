@@ -32,7 +32,7 @@ import androidx.annotation.RequiresApi;
  * Bluetooth LE API.
  */
 
-public class DeviceControlActivity2 extends Activity {
+public class DeviceControlActivity2 {
 	 private final static String TAG = DeviceControlActivity.class.getSimpleName();
 
 	    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -62,7 +62,6 @@ public class DeviceControlActivity2 extends Activity {
 	            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
 	            if (!mBluetoothLeService.initialize()) {
 	                Log.e(TAG, "Unable to initialize Bluetooth");
-	                finish();
 	            }
 	            // Automatically connects to the device upon successful start-up initialization.
 //	            boolean connState= mBluetoothLeService.connect(mDeviceAddress);
@@ -88,11 +87,9 @@ public class DeviceControlActivity2 extends Activity {
 
 	            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
 	                mConnected = true;
-	                invalidateOptionsMenu();
 	                setWaits();
 	            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
 	                mConnected = false;
-	                invalidateOptionsMenu();
 	                clearUI();
 
 	            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
@@ -147,48 +144,17 @@ public class DeviceControlActivity2 extends Activity {
 
 	    }
 
-	    @Override
-	    public void onCreate(Bundle savedInstanceState) {
-	        super.onCreate(savedInstanceState);
-
-	        final Intent intent = getIntent();
-	        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-
-	        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-	        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-
-	    }
-
-	    @Override
-	    protected void onResume() {
-	        super.onResume();
-	        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-	        if (mBluetoothLeService != null) {
-	            Log.d(TAG, "Connect request result=" + "result");
-	        }
-
-	    }
-
-	    @Override
-	    protected void onPause() {
-	        super.onPause();
-	        unregisterReceiver(mGattUpdateReceiver);
-
-	    }
-
-	    @Override
-	    protected void onDestroy() {
-	        super.onDestroy();
-	        unbindService(mServiceConnection);
-	        mBluetoothLeService = null;
-
-	    }
-
-	    @Override
-	    public boolean onCreateOptionsMenu(Menu menu) {
-
-	        return true;
-	    }
+//	    @Override
+//	    public void onCreate(Bundle savedInstanceState) {
+//	        super.onCreate(savedInstanceState);
+//
+//	        final Intent intent = getIntent();
+//	        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+//
+//	        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+//	        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+//
+//	    }
 
 
 		// Demonstrates how to iterate through the supported GATT Services/Characteristics.
@@ -198,8 +164,8 @@ public class DeviceControlActivity2 extends Activity {
       private void displayGattServices(List<BluetoothGattService> gattServices) {
 	        if (gattServices == null) return;
 	        String uuid = null;
-	        String unknownServiceString = getResources().getString(Integer.parseInt(String.valueOf(0x7f05000b)));
-	        String unknownCharaString = getResources().getString(Integer.parseInt(String.valueOf(0x7f05000b)));
+//	        String unknownServiceString = getResources().getString(Integer.parseInt(String.valueOf(0x7f05000b)));
+//	        String unknownCharaString = getResources().getString(Integer.parseInt(String.valueOf(0x7f05000b)));
 	        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
 	        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData
 	                = new ArrayList<ArrayList<HashMap<String, String>>>();
@@ -212,8 +178,8 @@ public class DeviceControlActivity2 extends Activity {
 
 	            if (uuid.contains("ffe0"))
 	            {
-	            	currentServiceData.put(
-	                        LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
+//	            	currentServiceData.put(
+//	                        LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
 	                currentServiceData.put(LIST_UUID, uuid);
 	                gattServiceData.add(currentServiceData);
 
@@ -231,8 +197,8 @@ public class DeviceControlActivity2 extends Activity {
 	                    uuid = gattCharacteristic.getUuid().toString();
 	                    if (uuid.contains("ffe4"))
 	                    {
-	                    	currentCharaData.put(
-	                                LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
+//	                    	currentCharaData.put(
+//	                                LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
 	                        currentCharaData.put(LIST_UUID, uuid);
 	                        gattCharacteristicGroupData.add(currentCharaData);
 

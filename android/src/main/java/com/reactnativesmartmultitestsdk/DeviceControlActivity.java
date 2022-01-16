@@ -1,5 +1,7 @@
 package com.reactnativesmartmultitestsdk;
 
+import static com.facebook.react.bridge.UiThreadUtil.runOnUiThread;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +34,7 @@ import androidx.annotation.RequiresApi;
  * Bluetooth LE API.
  */
 
-public class DeviceControlActivity extends Activity {
+public class DeviceControlActivity {
 	 private final static String TAG = DeviceControlActivity.class.getSimpleName();
 
 	    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -71,7 +73,6 @@ public class DeviceControlActivity extends Activity {
 	            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
 	            if (!mBluetoothLeService.initialize()) {
 	                Log.e(TAG, "Unable to initialize Bluetooth");
-	                finish();
 	            }
 	            // Automatically connects to the device upon successful start-up initialization.
 	            boolean connState=mBluetoothLeService.connect(mDeviceAddress);
@@ -97,11 +98,9 @@ public class DeviceControlActivity extends Activity {
 
 	            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
 	                mConnected = true;
-	                invalidateOptionsMenu();
 	                setWaits();
 	            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
 	                mConnected = false;
-	                invalidateOptionsMenu();
 	                clearUI();
 
 	            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
@@ -175,73 +174,19 @@ public class DeviceControlActivity extends Activity {
 
 	    }
 
-	    @Override
-	    public void onCreate(Bundle savedInstanceState) {
-	        super.onCreate(savedInstanceState);
-
-	        final Intent intent = getIntent();
-	        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-	        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-
-	        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-	        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-
-	    }
-
-	    @Override
-	    protected void onResume() {
-	        super.onResume();
-	        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-	        if (mBluetoothLeService != null) {
-	            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-	            Log.d(TAG, "Connect request result=" + result);
-	        }
-
-	        mdatPartOne="";
-	        mdatPartTwo="";
-	        mDataField.setText("");
-	        mTimeField.setText("");
-	        mUnitField.setText("");
-	        mItemField.setText("");
-
-	    }
-
-	    @Override
-	    protected void onPause() {
-	        super.onPause();
-	        unregisterReceiver(mGattUpdateReceiver);
-
-	    }
-
-	    @Override
-	    protected void onDestroy() {
-	        super.onDestroy();
-	        unbindService(mServiceConnection);
-	        mBluetoothLeService = null;
-
-	    }
-
-	    @Override
-	    public boolean onCreateOptionsMenu(Menu menu) {
-
-	        return true;
-	    }
-
 //	    @Override
-//	    public boolean onOptionsItemSelected(MenuItem item) {
-//	        switch(item.getItemId()) {
-//	            case R.id.menu_connect:
-//	                mBluetoothLeService.connect(mDeviceAddress);
-//	                return true;
-//	            case R.id.menu_disconnect:
-//	                mBluetoothLeService.disconnect();
-//	                return true;
-//	            case android.R.id.home:
-//	                onBackPressed();
-//	                return true;
-//	        }
-//	        return super.onOptionsItemSelected(item);
+//	    public void onCreate(Bundle savedInstanceState) {
+//	        super.onCreate(savedInstanceState);
+//
+//	        final Intent intent = getIntent();
+//	        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+//	        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+//
+//	        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+//	        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+//
 //	    }
+
 
 	    private void updateConnectionState(final int resourceId) {
 	        runOnUiThread(new Runnable() {
@@ -259,8 +204,8 @@ public class DeviceControlActivity extends Activity {
       private void displayGattServices(List<BluetoothGattService> gattServices) {
 	        if (gattServices == null) return;
 	        String uuid = null;
-	        String unknownServiceString = getResources().getString(Integer.parseInt(String.valueOf(0x7f05000b)));
-	        String unknownCharaString = getResources().getString(Integer.parseInt(String.valueOf(0x7f05000b)));
+//	        String unknownServiceString = getResources().getString(Integer.parseInt(String.valueOf(0x7f05000b)));
+//	        String unknownCharaString = getResources().getString(Integer.parseInt(String.valueOf(0x7f05000b)));
 	        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
 	        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData
 	                = new ArrayList<ArrayList<HashMap<String, String>>>();
@@ -273,8 +218,8 @@ public class DeviceControlActivity extends Activity {
 
 	            if (uuid.contains("ffe0"))
 	            {
-	            	currentServiceData.put(
-	                        LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
+//	            	currentServiceData.put(
+//	                        LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
 	                currentServiceData.put(LIST_UUID, uuid);
 	                gattServiceData.add(currentServiceData);
 
@@ -292,8 +237,8 @@ public class DeviceControlActivity extends Activity {
 	                    uuid = gattCharacteristic.getUuid().toString();
 	                    if (uuid.contains("ffe4"))
 	                    {
-	                    	currentCharaData.put(
-	                                LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
+//	                    	currentCharaData.put(
+//	                                LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
 	                        currentCharaData.put(LIST_UUID, uuid);
 	                        gattCharacteristicGroupData.add(currentCharaData);
 

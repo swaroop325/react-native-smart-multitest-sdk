@@ -21,11 +21,10 @@ def safeExtGet(prop, fallback) {
 android {
     compileSdkVersion safeExtGet('SmartMultitestSdk_compileSdkVersion', 29)
     defaultConfig {
-        minSdkVersion safeExtGet('SmartMultitestSdk_minSdkVersion', 16)
+        minSdkVersion safeExtGet('SmartMultitestSdk_minSdkVersion', 21)
         targetSdkVersion safeExtGet('SmartMultitestSdk_targetSdkVersion', 29)
         versionCode 1
         versionName "1.0"
-
     }
 
     buildTypes {
