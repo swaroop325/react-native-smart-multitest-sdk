@@ -1,22 +1,21 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules } from 'react-native';
+var sdkManager = NativeModules.SmartMultitestSdk;
+class SmartMultitestSdkManager {
+  constructor() {
+    // this.isPeripheralConnected = this.isPeripheralConnected.bind(this);
+  }
 
-const LINKING_ERROR =
-  `The package 'react-native-smart-multitest-sdk' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo managed workflow\n';
-
-const SmartMultitestSdk = NativeModules.SmartMultitestSdk
-  ? NativeModules.SmartMultitestSdk
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
-
-export function multiply(a: number, b: number): Promise<number> {
-  return SmartMultitestSdk.multiply(a, b);
+  startSdk(): Promise<void | string> {
+    return new Promise((fulfill, reject) => {
+      sdkManager.start((error: any) => {
+        if (error) {
+          reject(error);
+        } else {
+          fulfill();
+        }
+      });
+    });
+  }
 }
+
+export default new SmartMultitestSdkManager();

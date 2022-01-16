@@ -1,12 +1,15 @@
 package com.reactnativesmartmultitestsdk;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 
 @ReactModule(name = SmartMultitestSdkModule.NAME)
 public class SmartMultitestSdkModule extends ReactContextBaseJavaModule {
@@ -22,6 +25,9 @@ public class SmartMultitestSdkModule extends ReactContextBaseJavaModule {
         return NAME;
     }
 
+    public void sendEvent(String eventName, @Nullable WritableMap params) {
+        getReactApplicationContext().getJSModule(RCTNativeAppEventEmitter.class).emit(eventName, params);
+    }
 
     // Example method
     // See https://reactnative.dev/docs/native-modules-android
