@@ -11,11 +11,11 @@ npm install react-native-smart-multitest-sdk
 ## Usage
 
 ```js
-import { multiply } from "react-native-smart-multitest-sdk";
+
 
 // ...
 
-const result = await multiply(3, 7);
+
 ```
 
 ## Contributing
