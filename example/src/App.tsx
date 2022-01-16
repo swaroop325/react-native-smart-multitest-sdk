@@ -1,6 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  NativeModules,
+  NativeEventEmitter,
+  Button,
+} from 'react-native';
+
+import SmartMultitestSdkManager from 'react-native-smart-multitest-sdk';
+
+var sdkManager = NativeModules.SmartMultitestSdk;
+const sdkManagerEmitter = new NativeEventEmitter(sdkManager);
 
 export default function App() {
   const [result] = React.useState<number | undefined>();
