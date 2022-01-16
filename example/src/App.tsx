@@ -1,13 +1,12 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-smart-multitest-sdk';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const [result] = React.useState<number | undefined>();
 
   React.useEffect(() => {
-    multiply(3, 7).then(setResult);
+    // call here
   }, []);
 
   return (

@@ -16,6 +16,30 @@ class SmartMultitestSdkManager {
       });
     });
   }
+
+  connect(): Promise<void | string> {
+    return new Promise((fulfill, reject) => {
+      sdkManager.connect((error: any) => {
+        if (error) {
+          reject(error);
+        } else {
+          fulfill();
+        }
+      });
+    });
+  }
+
+  read(): Promise<void | string> {
+    return new Promise((fulfill, reject) => {
+      sdkManager.read((error: any) => {
+        if (error) {
+          reject(error);
+        } else {
+          fulfill();
+        }
+      });
+    });
+  }
 }
 
 export default new SmartMultitestSdkManager();

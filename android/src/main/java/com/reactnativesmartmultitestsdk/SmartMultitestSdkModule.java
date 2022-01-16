@@ -29,6 +29,24 @@ public class SmartMultitestSdkModule extends ReactContextBaseJavaModule {
         getReactApplicationContext().getJSModule(RCTNativeAppEventEmitter.class).emit(eventName, params);
     }
 
+    @ReactMethod
+    public void start(Callback callback) {
+        //to be implemented
+    
+    }
+
+    @ReactMethod
+    public void connect(Callback callback) {
+        //to be implemented
+    
+    }
+
+    @ReactMethod
+    public void read(Callback callback) {
+        //to be implemented
+    
+    }
+
     // Example method
     // See https://reactnative.dev/docs/native-modules-android
     @ReactMethod
