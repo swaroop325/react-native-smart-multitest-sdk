@@ -1,4 +1,4 @@
-package com.example.bluetooth.le;
+package com.reactnativesmartmultitestsdk;
 
 import java.util.HashMap;
 

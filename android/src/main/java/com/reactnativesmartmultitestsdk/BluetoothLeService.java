@@ -1,4 +1,4 @@
-package com.example.bluetooth.le;
+package com.reactnativesmartmultitestsdk;
 
 import android.annotation.SuppressLint;
 import android.app.Service;

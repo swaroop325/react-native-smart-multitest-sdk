@@ -1,4 +1,4 @@
-package com.example.bluetooth.le;
+package com.reactnativesmartmultitestsdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -20,7 +20,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.example.bluetoothg01u.le.R;
 
 import java.util.ArrayList;
 import java.util.UUID;

@@ -51,14 +51,11 @@ public class DeviceControlActivity extends Activity {
 	    
 	    private final String LIST_NAME = "NAME";
 	    private final String LIST_UUID = "UUID";
+	    private byte[] revdataall=new byte[100];
+	    private int revstarti=0;
 	    
-	    private String mdatPartOne="";
-	    private String mdatPartTwo="";
-	    
-	    private final byte replyBleData[] = new byte[] { (byte) 0x69, (byte) 0x02, (byte) 0xA1, (byte) 0xA3,(byte) 0x00 };
-	    private final byte replyBleData2[] = new byte[] { (byte) 0x5A, (byte) 0x02, (byte) 0x51, (byte) 0x53,(byte) 0x00 };
-	    private final byte replyBleData3[] = new byte[] { (byte) 0x5A, (byte) 0x02, (byte) 0x52, (byte) 0x54,(byte) 0x00 };
-	    private final byte replyBleConn[] = new byte[] { (byte) 0x69, (byte) 0x02, (byte) 0xA2, (byte) 0xA4,(byte) 0x00 };
+	    private final byte replyBleData[] = new byte[] { (byte) 0x68, (byte) 0x02, (byte) 0x51, (byte) 0x53,(byte) 0x00 };
+	    private final byte replyBleDataHist[] = new byte[] { (byte) 0x68, (byte) 0x02, (byte) 0x52, (byte) 0x54,(byte) 0x00 };
 	    
 	    // Code to manage Service lifecycle.
 	    private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -114,23 +111,13 @@ public class DeviceControlActivity extends Activity {
 	                
 					int tmpRes=checkReceiveData(data);
 					
-					if (tmpRes==1)
+					if (tmpRes==2)
 					{
 						if (mBluetoothLeService==null || mConnected==false) return;
 	                	new Handler().postDelayed(new Runnable() {
 							@Override
 							public void run() {
-								mBluetoothLeService.writeCharacteristic(replyBleConn);
-							}
-						}, 10);
-						
-					}
-					else if (tmpRes==2)
-					{
-						if (mBluetoothLeService==null || mConnected==false) return;
-	                	new Handler().postDelayed(new Runnable() {
-							@Override
-							public void run() {
+								// TODO Auto-generated method stub
 								mBluetoothLeService.writeCharacteristic(replyBleData);
 							}
 						}, 10);
@@ -142,19 +129,10 @@ public class DeviceControlActivity extends Activity {
 	                	new Handler().postDelayed(new Runnable() {
 							@Override
 							public void run() {
-								mBluetoothLeService.writeCharacteristic(replyBleData2);
-							}
-						}, 10);
-						
-					}
-					else if (tmpRes==6)
-					{
-						if (mBluetoothLeService==null || mConnected==false) return;
-	                	new Handler().postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								mBluetoothLeService.writeCharacteristic(replyBleData3);
-
+								// TODO Auto-generated method stub
+								
+								mBluetoothLeService.writeCharacteristic(replyBleDataHist);
+			                	
 							}
 						}, 10);
 						
@@ -201,8 +179,6 @@ public class DeviceControlActivity extends Activity {
 	            Log.d(TAG, "Connect request result=" + result);
 	        }
 	        
-	        mdatPartOne="";
-	        mdatPartTwo="";
 	        mDataField.setText("");
 	        mTimeField.setText("");
 	        mUnitField.setText("");
@@ -341,96 +317,89 @@ public class DeviceControlActivity extends Activity {
 	    }
 	    
 	    private int checkReceiveData(byte revData[]) {
-
-			int startChar=0x69;//��ʼ��
-			int startChar2=0xA5;//�ʿ���ʼ��
+			int startChar=0x68;
 			int dataLen=0;
 			int cmdChar=0x51;
 			int chkSum=0x00;
-			int dataType=0;
+			byte tmpdata[]=null;
+			int dataType=0;//
 			double tmpVal=0.0;
+			int tmpIVal=0;
+			boolean isHistData=false;
 			String viewData="";
 			String viewTime="";
-			String Units="mg/L";
+			String typeStr="";
+			String Units="mg/dL";
 			String DataTypeStr="";
+			
 			if (revData==null) return 0;
 			
 			int i=revData.length;
 			if (i<4 || i>100) return 0;
 			
 			int mflag=revData[0] & 0xff;
-			
-			if ((mflag!=startChar) && (mflag!=startChar2)) return 0;
-			
-			dataLen=revData[1] & 0xff;
-			
-			if (dataLen==2)
+			if (mflag==startChar)
 			{
-				int d2=revData[2] & 0xff;
-				int d3=revData[3] & 0xff;
-				if (d2==0x52 && d3==0x54)
-					return 1;
-				else
-					return 0;
+				revstarti=0;
+				for (int j=0;j<i;j++)
+				{
+					revdataall[revstarti++]=revData[j];
+				}
+			}
+			else
+			{
+				if (revstarti>50) return 0;
+				for (int j=0;j<i;j++)
+				{
+					revdataall[revstarti++]=revData[j];
+				}
+				
 			}
 			
-			if (dataLen>2)
+			if (revstarti>50)
 			{
-				cmdChar=revData[2] & 0xff;
-				dataType=revData[dataLen] & 0xff;
-				chkSum=revData[dataLen+1] & 0xff;
+				tmpdata=new byte[revstarti];
+				for (int j=0;j<revstarti;j++)
+					tmpdata[j]=revdataall[j];
+				mflag=tmpdata[0] & 0xff;
+				int size=revstarti;
+				if (mflag!=startChar) return 0;
+				dataLen=tmpdata[1] & 0xff;
+				if (dataLen+2!=revstarti) return 0;
+				
+				cmdChar=tmpdata[2] & 0xff;	
+				dataType=tmpdata[11] & 0xff;
+				chkSum=tmpdata[dataLen+1] & 0xff;
 				int tmpSum=0;
 				for (int j=1;j<=dataLen;j++)
-					tmpSum+=(revData[j] & 0xff);
+					tmpSum+=(tmpdata[j] & 0xff);
 				tmpSum=tmpSum & 0xff;
-				
-				if (cmdChar==26)
-				{
+				if (cmdChar==161)
+					isHistData=false;
+				else if (cmdChar==162)
+					isHistData=true;
+				else
+					isHistData=false;
 					
-					if (chkSum==tmpSum)
-					{
-						return 5;
-					}
-					else
-					{
-						return 0;
-					}
-					
-				}
-				else if (cmdChar==42)
-				{
-					if (chkSum==tmpSum)
-					{
-						return 6;
-					}
-					else
-					{
-						return 0;
-					}
-				}
-				
-				if (cmdChar!=81) return 0;
-				
 				if (chkSum==tmpSum)
 				{
 					int tmpYear=0,tmpMonth=0,tmpDay=0,tmpHour=0,tmpMin=0,tmpsec=0;
 					int tmpHVal=0,tmpLval=0;
 					tmpVal=0.0;
-					
-					tmpYear=revData[3] & 0xff;
-					tmpMonth=revData[4] & 0xff;
-					tmpDay=revData[5] & 0xff;
-					tmpHour=revData[6] & 0xff;
-					tmpMin=revData[7] & 0xff;
-					tmpsec=revData[8] & 0xff;
-					tmpHVal=revData[9] & 0xff;
-					tmpLval=revData[10] & 0xff;
-					
-					tmpVal=tmpHVal*256+tmpLval;
+					tmpIVal=0;
+					tmpYear=tmpdata[5] & 0xff;
+					tmpMonth=tmpdata[6] & 0xff;
+					tmpDay=tmpdata[7] & 0xff;
+					tmpHour=tmpdata[8] & 0xff;
+					tmpMin=tmpdata[9] & 0xff;
+					tmpsec=tmpdata[10] & 0xff;
+					tmpHVal=tmpdata[3] & 0xff;
+					tmpLval=tmpdata[4] & 0xff;
+					tmpVal=(tmpHVal*256.0+tmpLval)/100;
+					tmpIVal=tmpHVal*256+tmpLval;
 					
 					tmpYear+=2000;
 					viewTime=Integer.toString(tmpYear)+"-"+Integer.toString(tmpMonth)+"-"+Integer.toString(tmpDay)+" ";
-					
 					if (tmpHour<10) viewTime=viewTime+"0";
 					viewTime=viewTime+Integer.toString(tmpHour)+":";
 					if (tmpMin<10) viewTime=viewTime+"0";
@@ -439,21 +408,80 @@ public class DeviceControlActivity extends Activity {
 					viewTime=viewTime+Integer.toString(tmpsec);
 					
 					DataTypeStr="";
-					viewData="";
-					if (dataType==0xA1)
+					
+					if (dataType==0xA2)
 					{
-						DataTypeStr="����";
-						viewData=Double.toString(tmpVal);
+						DataTypeStr="Blood Glucose";
+						typeStr="1";
+						Units="mg/dL";
 					}
-					else if (dataType==0xA2)
+					else if (dataType==0xA3)
 					{
-						DataTypeStr="Ѫ��";
-						if (tmpVal<=20)
+						DataTypeStr="Uric Acid";
+						typeStr="3";
+						Units="mg/dL";
+					}
+					else if (dataType==0xA4)
+					{
+						DataTypeStr="Total Cholesterol";
+						typeStr="4";
+						Units="mg/dL";
+					}
+					else if (dataType==0xA5)
+					{
+						DataTypeStr="Hemoglobin";
+						typeStr="5";
+						Units="g/dL";
+					}
+					else
+					{
+						DataTypeStr=" ";
+					}
+					
+					viewData="";
+					if (typeStr.equals("3"))
+					{
+						if (tmpVal<=1.48)
 							viewData="Lo";
-						else if (tmpVal>=600)
+						else if (tmpVal>=19.809)
 							viewData="Hi";
 						else
 							viewData=Double.toString(tmpVal);
+					}
+					else if (typeStr.equals("5"))
+					{
+						if (tmpVal<5.0)
+							viewData="Lo";
+						else if (tmpVal>27.0)
+							viewData="Hi";
+						else
+							viewData=Double.toString(tmpVal);
+					}
+					else
+					{
+						viewData=Integer.toString(tmpIVal);
+						if (typeStr.equals("1"))
+						{
+							if (tmpIVal<=20)
+								viewData="Lo";
+							else if (tmpIVal>=600)
+								viewData="Hi";
+							else
+								viewData=Integer.toString(tmpIVal);
+						}
+						else if (typeStr.equals("4"))
+						{
+							if (tmpIVal<=103)
+								viewData="Lo";
+							else if (tmpIVal>=413)
+								viewData="Hi";
+							else
+								viewData=Integer.toString(tmpIVal);
+						}
+						else
+						{
+							viewData=Integer.toString(tmpIVal);
+						}
 					}
 					
 					if (viewData.length()>0)
@@ -464,13 +492,21 @@ public class DeviceControlActivity extends Activity {
 						mUnitField.setText(Units);
 					}
 					
-					return 2;
-					
+					if (isHistData)
+						return 5;
+					else
+						return 2;
+
+				}
+				else
+				{
+					return 0;
 				}
 				
 			}
 			
 			return 0;
 		}
+	    
 	  	
 }
